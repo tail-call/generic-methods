@@ -66,13 +66,13 @@ This is how you'd approach the problem with **generic-methods**:
     });
 
     package.define('map', 'string', (self, func) => {
-        return collection.split('').map(func).join('');
+        return self.split('').map(func).join('');
     });
 
     package.define('map', Object, (self, func) => {
         let result = {};
-        Object.keys(collection).forEach(key => {
-            result[key] = func(collection[key]);
+        Object.keys(self).forEach(key => {
+            result[key] = func(self[key]);
         });
         return result;
     });
