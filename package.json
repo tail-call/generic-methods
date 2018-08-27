@@ -6,8 +6,12 @@
   "scripts": {
     "test": "mocha test.js"
   },
-  "author": "",
+  "author": "Anton Istomin <anton@tail-call.ru>",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tail-call/generic-methods"
+  },
   "devDependencies": {
     "chai": "*",
     "mocha": "*"
