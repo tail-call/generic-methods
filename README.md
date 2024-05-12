@@ -23,19 +23,21 @@ want it to be able to map over arrays and objects and maybe even
 strings. You could approach implementing such a function like this in
 a vanilla JS:
 
-    function map(collection, func) {
-        if (collection instanceof Array) {
-            return collection.map(func);
-        } else if (typeof(collection) === 'string') {
-            return collection.split('').map(func).join('');
-        } else {
-            let result = {};
-            Object.keys(collection).forEach(key => {
-                result[key] = func(collection[key]);
-            });
-            return result;
-        }
+```js
+function map(collection, func) {
+    if (collection instanceof Array) {
+        return collection.map(func);
+    } else if (typeof(collection) === 'string') {
+        return collection.split('').map(func).join('');
+    } else {
+        let result = {};
+        Object.keys(collection).forEach(key => {
+            result[key] = func(collection[key]);
+        });
+        return result;
     }
+}
+```
 
 That's pretty dense, but it works. And yet it's somewhat difficult to
 extend. What if next time you implement a LinkedList class and want to
@@ -57,37 +59,41 @@ object and yet are dispatched as needed when needed.
 
 This is how you'd approach the problem with **generic-methods**:
 
-    const Package = require('generic-methods');
+```js
+const Package = require('generic-methods');
 
-    const package = new Package();
+const package = new Package();
 
-    package.define('map', Array, (self, func) => {
-        return self.map(func);
+package.define('map', Array, (self, func) => {
+    return self.map(func);
+});
+
+package.define('map', 'string', (self, func) => {
+    return self.split('').map(func).join('');
+});
+
+package.define('map', Object, (self, func) => {
+    let result = {};
+    Object.keys(self).forEach(key => {
+        result[key] = func(self[key]);
     });
-
-    package.define('map', 'string', (self, func) => {
-        return self.split('').map(func).join('');
-    });
-
-    package.define('map', Object, (self, func) => {
-        let result = {};
-        Object.keys(self).forEach(key => {
-            result[key] = func(self[key]);
-        });
-        return result;
-    });
+    return result;
+});
+```
 
 And this is how you'd use it:
 
-    const { map } = package.bindings;
+```js
+const { map } = package.bindings;
 
-    const twice = x => x + x;
+const twice = x => x + x;
 
-    console.log(map([1, 2, 3], twice)); // [2, 4, 6]
+console.log(map([1, 2, 3], twice)); // [2, 4, 6]
 
-    console.log(map('sausage', twice)); // 'ssaauussaaggee'
+console.log(map('sausage', twice)); // 'ssaauussaaggee'
 
-    console.log(map({ foo: 1, bar: 2 }, twice)); // { foo: 2, bar: 4 }
+console.log(map({ foo: 1, bar: 2 }, twice)); // { foo: 2, bar: 4 }
+```
 
 Extending your new `map()` to support more classes is trivial, and you
 can even scope implementation of `map()` for you class within its
@@ -98,12 +104,14 @@ from existing classes, that is extracting them in a package as
 stand-alone functions that accept class instance as a first
 argument. It's ridiculously simple:
 
-    const liftedArray = new Package('LiftedArray');
+```js
+const liftedArray = new Package('LiftedArray');
 
-    liftedArray.lift(Array);
+liftedArray.lift(Array);
 
-    // Now Array.prototype methods are available from liftedArray.bindings
+// Now Array.prototype methods are available from liftedArray.bindings
 
-    const { reverse } = liftedArray.binings;
+const { reverse } = liftedArray.binings;
 
-    console.log(reverse([1, 2, 3])); // [3, 2, 1]
+console.log(reverse([1, 2, 3])); // [3, 2, 1]
+```
